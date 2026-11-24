@@ -1,6 +1,8 @@
 import unittest
+from pathlib import Path
+from unittest.mock import patch
 
-from gitpulse.collector import FIELD_SEP, Commit, parse_log
+from gitpulse.collector import FIELD_SEP, Commit, collect_commits, parse_log
 
 
 class ParseLogTests(unittest.TestCase):
@@ -22,6 +24,20 @@ class ParseLogTests(unittest.TestCase):
     def test_date_is_utc(self):
         commit = Commit("a" * 40, "Alice", "a@b.c", 0, "Epoch")
         self.assertEqual(commit.date, "1970-01-01")
+
+
+class CollectCommandTests(unittest.TestCase):
+    @patch("gitpulse.collector.subprocess.run")
+    def test_excludes_merges_by_default(self, run):
+        run.return_value.stdout = ""
+        collect_commits(Path("."))
+        self.assertIn("--no-merges", run.call_args.args[0])
+
+    @patch("gitpulse.collector.subprocess.run")
+    def test_can_include_merges(self, run):
+        run.return_value.stdout = ""
+        collect_commits(Path("."), include_merges=True)
+        self.assertNotIn("--no-merges", run.call_args.args[0])
 
 
 if __name__ == "__main__":
