@@ -100,7 +100,14 @@ def collect_commits(
             raise ValueError("limit must be positive")
         cmd.append(f"-n{limit}")
 
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=True,
+    )
     return parse_log(result.stdout)
 
 
@@ -126,7 +133,14 @@ def collect_file_stats(
     if author:
         cmd.append(f"--author={author}")
 
-    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    result = subprocess.run(
+        cmd,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        check=True,
+    )
     stats = parse_file_stats(result.stdout)
     if exclude:
         stats = [stat for stat in stats if not any(part in stat.path for part in exclude)]
