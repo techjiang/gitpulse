@@ -72,6 +72,7 @@ def collect_commits(
     path: Path,
     *,
     since_days: int | None = None,
+    since: str | None = None,
     author: str | None = None,
     limit: int | None = None,
     include_merges: bool = False,
@@ -90,6 +91,8 @@ def collect_commits(
         if since_days <= 0:
             raise ValueError("since_days must be positive")
         cmd.append(f"--since={since_days} days ago")
+    if since:
+        cmd.append(f"--since={since}")
     if author:
         cmd.append(f"--author={author}")
     if limit is not None:
@@ -105,6 +108,7 @@ def collect_file_stats(
     path: Path,
     *,
     since_days: int | None = None,
+    since: str | None = None,
     author: str | None = None,
     include_merges: bool = False,
     exclude: tuple[str, ...] = (),
@@ -117,6 +121,8 @@ def collect_file_stats(
         if since_days <= 0:
             raise ValueError("since_days must be positive")
         cmd.append(f"--since={since_days} days ago")
+    if since:
+        cmd.append(f"--since={since}")
     if author:
         cmd.append(f"--author={author}")
 

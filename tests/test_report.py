@@ -46,6 +46,10 @@ class ReportTests(unittest.TestCase):
         self.assertEqual(data["files"][0]["path"], "README.md")
         self.assertEqual(len(data["commits"]), 3)
 
+    def test_since_date_window(self):
+        text = build_markdown(self.commits, "demo", since_date="2026-01-01")
+        self.assertIn("- Window: since 2026-01-01", text)
+
 
 if __name__ == "__main__":
     unittest.main()

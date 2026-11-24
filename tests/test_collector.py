@@ -56,6 +56,12 @@ class CollectCommandTests(unittest.TestCase):
         stats = collect_file_stats(Path("."), exclude=("docs/",))
         self.assertEqual([stat.path for stat in stats], ["src/main.py"])
 
+    @patch("gitpulse.collector.subprocess.run")
+    def test_since_date_is_forwarded(self, run):
+        run.return_value.stdout = ""
+        collect_commits(Path("."), since="2026-01-01")
+        self.assertIn("--since=2026-01-01", run.call_args.args[0])
+
 
 if __name__ == "__main__":
     unittest.main()
