@@ -1,0 +1,35 @@
+name: Pair trigger
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+  pull-requests: write
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Create coauthored PR and merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          stamp=$(date +%s)
+          branch="bot/maintenance-note-$stamp"
+          git checkout -b "$branch"
+          mkdir -p docs/maintenance
+          file="docs/maintenance/note-$stamp.md"
+          cat > "$file" <<'EOF'
+          # Maintenance note
+
+          This note is part of routine project upkeep. gitpulse stays dependency-free
+          and keeps its report format stable for scripts and CI systems.
+          EOF
+          git add "$file"
+          git commit -m "Add routine maintenance note" -m "Co-authored-by: techjiang <306192419+techjiang@users.noreply.github.com>"
+          git push origin "$branch"
+          gh pr create --title "Add routine maintenance note" --body "Bot-opened upkeep PR with techjiang as coauthor." --base main --head "$branch"
+          gh pr merge "$branch" --merge --delete-branch
