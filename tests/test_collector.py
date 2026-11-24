@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from gitpulse.collector import FIELD_SEP, Commit, collect_commits, parse_log
+from gitpulse.collector import FIELD_SEP, Commit, collect_commits, parse_file_stats, parse_log
 
 
 class ParseLogTests(unittest.TestCase):
@@ -24,6 +24,17 @@ class ParseLogTests(unittest.TestCase):
     def test_date_is_utc(self):
         commit = Commit("a" * 40, "Alice", "a@b.c", 0, "Epoch")
         self.assertEqual(commit.date, "1970-01-01")
+
+
+class ParseFileStatsTests(unittest.TestCase):
+    def test_counts_and_sorts_paths(self):
+        text = "a.py\nb.py\n\na.py\nc.py\na.py\n"
+        stats = parse_file_stats(text)
+        self.assertEqual(stats[0].path, "a.py")
+        self.assertEqual(stats[0].commits, 3)
+        self.assertEqual(stats[1].path, "b.py")
+        self.assertEqual(stats[2].path, "c.py")
+        self.assertEqual(stats[2].commits, 1)
 
 
 class CollectCommandTests(unittest.TestCase):

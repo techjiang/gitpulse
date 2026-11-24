@@ -1,6 +1,6 @@
 import unittest
 
-from gitpulse.collector import Commit
+from gitpulse.collector import Commit, FileStat
 from gitpulse.report import build_markdown
 
 
@@ -28,6 +28,13 @@ class ReportTests(unittest.TestCase):
         text = build_markdown(self.commits, "demo", top=1)
         self.assertIn("`ccccccc` Third commit", text)
         self.assertNotIn("`aaaaaaa`", text)
+
+    def test_file_stats_section(self):
+        stats = [FileStat("gitpulse/cli.py", 4), FileStat("README.md", 2)]
+        text = build_markdown(self.commits, "demo", file_stats=stats, top_files=1)
+        self.assertIn("## Most touched files", text)
+        self.assertIn("| `gitpulse/cli.py` | 4 |", text)
+        self.assertNotIn("| `README.md` | 2 |", text)
 
 
 if __name__ == "__main__":
