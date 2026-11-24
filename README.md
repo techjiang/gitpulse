@@ -11,6 +11,7 @@
 - Ranks the most frequently touched files, with optional path exclusions.
 - Outputs Markdown or machine-readable JSON.
 - Writes to stdout or a file.
+- Handles UTF-8 commit messages reliably on every platform.
 - Requires only Python 3.9+ and Git.
 
 ## Install
