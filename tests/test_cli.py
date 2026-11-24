@@ -32,12 +32,21 @@ class MainTests(unittest.TestCase):
         self.assertEqual(code, 2)
         self.assertIn("--top must be positive", stderr.getvalue())
 
+    def test_rejects_non_positive_top_files(self):
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            code = main(["--top-files", "0"])
+        self.assertEqual(code, 2)
+        self.assertIn("--top-files must be positive", stderr.getvalue())
+
     def test_writes_report_to_file(self):
         commit = Commit("a" * 40, "Alice", "a@b.c", 1700000000, "First commit")
         with tempfile.TemporaryDirectory() as tmp:
             output = Path(tmp) / "report.md"
             stdout = io.StringIO()
-            with patch("gitpulse.cli.collect_commits", return_value=[commit]), redirect_stdout(stdout):
+            with patch("gitpulse.cli.collect_commits", return_value=[commit]), \
+                 patch("gitpulse.cli.collect_file_stats", return_value=[]), \
+                 redirect_stdout(stdout):
                 code = main([".", "--output", str(output)])
             self.assertEqual(code, 0)
             self.assertIn("Wrote report to", stdout.getvalue())

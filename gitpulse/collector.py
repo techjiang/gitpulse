@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import subprocess
+from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
@@ -28,6 +29,12 @@ class Commit:
         return self.sha[:7]
 
 
+@dataclass(frozen=True)
+class FileStat:
+    path: str
+    commits: int
+
+
 def parse_log(text: str) -> list[Commit]:
     """Parse the output produced by git log --pretty=format:..."""
     commits: list[Commit] = []
@@ -41,6 +48,16 @@ def parse_log(text: str) -> list[Commit]:
         except ValueError:
             continue
     return commits
+
+
+def parse_file_stats(text: str) -> list[FileStat]:
+    """Parse the file names emitted by git log --name-only."""
+    counts: Counter[str] = Counter()
+    for line in text.splitlines():
+        name = line.strip()
+        if name:
+            counts[name] += 1
+    return [FileStat(path, count) for path, count in counts.most_common()]
 
 
 def repo_name(path: Path) -> str:
@@ -82,3 +99,25 @@ def collect_commits(
 
     result = subprocess.run(cmd, capture_output=True, text=True, check=True)
     return parse_log(result.stdout)
+
+
+def collect_file_stats(
+    path: Path,
+    *,
+    since_days: int | None = None,
+    author: str | None = None,
+    include_merges: bool = False,
+) -> list[FileStat]:
+    """Count how often each file was touched in the selected commits."""
+    cmd = ["git", "-C", str(path), "log", "--name-only", "--pretty=format:"]
+    if not include_merges:
+        cmd.append("--no-merges")
+    if since_days is not None:
+        if since_days <= 0:
+            raise ValueError("since_days must be positive")
+        cmd.append(f"--since={since_days} days ago")
+    if author:
+        cmd.append(f"--author={author}")
+
+    result = subprocess.run(cmd, capture_output=True, text=True, check=True)
+    return parse_file_stats(result.stdout)

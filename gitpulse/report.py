@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from collections import Counter
 
-from .collector import Commit
+from .collector import Commit, FileStat
 
 
 def _percentage(count: int, total: int) -> str:
@@ -19,6 +19,8 @@ def build_markdown(
     *,
     since_days: int | None = None,
     top: int = 5,
+    file_stats: list[FileStat] | None = None,
+    top_files: int = 5,
 ) -> str:
     """Build a Markdown activity report."""
     lines = [f"# Git activity report: {repository}", ""]
@@ -47,6 +49,15 @@ def build_markdown(
     for author, count in counts.most_common():
         lines.append(f"| {author} | {count} | {_percentage(count, total)} |")
     lines.append("")
+
+    if file_stats:
+        lines.append("## Most touched files")
+        lines.append("")
+        lines.append("| File | Commits |")
+        lines.append("| --- | ---: |")
+        for stat in file_stats[:top_files]:
+            lines.append(f"| `{stat.path}` | {stat.commits} |")
+        lines.append("")
 
     lines.append("## Recent commits")
     lines.append("")
