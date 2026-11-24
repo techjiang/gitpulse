@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 import sys
 
+from . import __version__
 from .collector import collect_commits, repo_name
 from .report import build_markdown
 
@@ -20,12 +21,20 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--author", help="only include commits by this author (git --author pattern)")
     parser.add_argument("--top", type=int, default=5, help="number of recent commits to list")
     parser.add_argument("--output", type=Path, help="write the report to this file instead of stdout")
+    parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     path = Path(args.path)
+
+    if args.top <= 0:
+        print("gitpulse: --top must be positive", file=sys.stderr)
+        return 2
+    if args.since_days is not None and args.since_days <= 0:
+        print("gitpulse: --since-days must be positive", file=sys.stderr)
+        return 2
 
     try:
         commits = collect_commits(path, since_days=args.since_days, author=args.author)
