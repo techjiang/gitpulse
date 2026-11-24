@@ -2,7 +2,7 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from gitpulse.collector import FIELD_SEP, Commit, collect_commits, parse_file_stats, parse_log
+from gitpulse.collector import FIELD_SEP, Commit, collect_commits, collect_file_stats, parse_file_stats, parse_log
 
 
 class ParseLogTests(unittest.TestCase):
@@ -49,6 +49,12 @@ class CollectCommandTests(unittest.TestCase):
         run.return_value.stdout = ""
         collect_commits(Path("."), include_merges=True)
         self.assertNotIn("--no-merges", run.call_args.args[0])
+
+    @patch("gitpulse.collector.subprocess.run")
+    def test_file_stats_exclude(self, run):
+        run.return_value.stdout = "src/main.py\ndocs/readme.md\n"
+        stats = collect_file_stats(Path("."), exclude=("docs/",))
+        self.assertEqual([stat.path for stat in stats], ["src/main.py"])
 
 
 if __name__ == "__main__":

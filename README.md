@@ -7,7 +7,7 @@
 - Counts commits in a date range and groups them by author.
 - Shows the most active contributors and their share of total commits.
 - Lists the latest commits with short messages.
-- Ranks the most frequently touched files.
+- Ranks the most frequently touched files, with optional path exclusions.
 - Outputs Markdown or machine-readable JSON.
 - Writes to stdout or a file.
 - Requires only Python 3.9+ and Git.
@@ -44,6 +44,9 @@ gitpulse . --top-files 10
 
 # Emit JSON for scripts
 gitpulse . --format json --output report.json
+
+# Ignore generated files in the file ranking
+gitpulse . --exclude docs/ --exclude tests/
 ```
 
 Example output:
