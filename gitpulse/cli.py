@@ -8,7 +8,7 @@ import sys
 
 from . import __version__
 from .collector import collect_commits, collect_file_stats, repo_name
-from .report import build_markdown
+from .report import build_json, build_markdown
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -22,6 +22,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--top", type=int, default=5, help="number of recent commits to list")
     parser.add_argument("--top-files", type=int, default=5, help="number of most touched files to list")
     parser.add_argument("--include-merges", action="store_true", help="include merge commits in the report")
+    parser.add_argument("--format", choices=["markdown", "json"], default="markdown", help="output format")
     parser.add_argument("--output", type=Path, help="write the report to this file instead of stdout")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     return parser
@@ -61,20 +62,28 @@ def main(argv: list[str] | None = None) -> int:
         print(f"gitpulse: failed to read git history: {exc}", file=sys.stderr)
         return 2
 
-    markdown = build_markdown(
-        commits,
-        repo_name(path),
-        since_days=args.since_days,
-        top=args.top,
-        file_stats=file_stats,
-        top_files=args.top_files,
-    )
+    if args.format == "json":
+        report = build_json(
+            commits,
+            repo_name(path),
+            file_stats=file_stats,
+            top_files=args.top_files,
+        )
+    else:
+        report = build_markdown(
+            commits,
+            repo_name(path),
+            since_days=args.since_days,
+            top=args.top,
+            file_stats=file_stats,
+            top_files=args.top_files,
+        )
 
     if args.output:
-        args.output.write_text(markdown, encoding="utf-8")
+        args.output.write_text(report, encoding="utf-8")
         print(f"Wrote report to {args.output}")
     else:
-        sys.stdout.write(markdown)
+        sys.stdout.write(report)
     return 0
 
 

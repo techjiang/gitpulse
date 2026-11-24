@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections import Counter
+import json
 
 from .collector import Commit, FileStat
 
@@ -67,3 +68,39 @@ def build_markdown(
     lines.append("")
 
     return "\n".join(lines)
+
+
+def build_json(
+    commits: list[Commit],
+    repository: str,
+    *,
+    file_stats: list[FileStat] | None = None,
+    top_files: int = 5,
+) -> str:
+    """Build a machine-readable JSON report."""
+    counts = Counter(commit.author for commit in commits)
+    data = {
+        "repository": repository,
+        "total_commits": len(commits),
+        "contributors": [
+            {"author": author, "commits": count}
+            for author, count in counts.most_common()
+        ],
+        "files": [
+            {"path": stat.path, "commits": stat.commits}
+            for stat in (file_stats or [])[:top_files]
+        ],
+        "commits": [
+            {
+                "sha": commit.sha,
+                "short_sha": commit.short_sha,
+                "author": commit.author,
+                "email": commit.email,
+                "timestamp": commit.timestamp,
+                "date": commit.date,
+                "subject": commit.subject,
+            }
+            for commit in commits
+        ],
+    }
+    return json.dumps(data, indent=2, ensure_ascii=False) + "\n"

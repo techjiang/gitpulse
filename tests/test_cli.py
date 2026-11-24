@@ -23,6 +23,10 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(args.top, 3)
         self.assertEqual(args.since_days, 7)
 
+    def test_format_default_and_override(self):
+        self.assertEqual(_parser().parse_args([]).format, "markdown")
+        self.assertEqual(_parser().parse_args(["--format", "json"]).format, "json")
+
 
 class MainTests(unittest.TestCase):
     def test_rejects_non_positive_top(self):
