@@ -107,6 +107,7 @@ def collect_file_stats(
     since_days: int | None = None,
     author: str | None = None,
     include_merges: bool = False,
+    exclude: tuple[str, ...] = (),
 ) -> list[FileStat]:
     """Count how often each file was touched in the selected commits."""
     cmd = ["git", "-C", str(path), "log", "--name-only", "--pretty=format:"]
@@ -120,4 +121,7 @@ def collect_file_stats(
         cmd.append(f"--author={author}")
 
     result = subprocess.run(cmd, capture_output=True, text=True, check=True)
-    return parse_file_stats(result.stdout)
+    stats = parse_file_stats(result.stdout)
+    if exclude:
+        stats = [stat for stat in stats if not any(part in stat.path for part in exclude)]
+    return stats

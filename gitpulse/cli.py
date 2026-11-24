@@ -21,6 +21,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--author", help="only include commits by this author (git --author pattern)")
     parser.add_argument("--top", type=int, default=5, help="number of recent commits to list")
     parser.add_argument("--top-files", type=int, default=5, help="number of most touched files to list")
+    parser.add_argument("--exclude", action="append", default=[], help="skip paths containing this text in file stats")
     parser.add_argument("--include-merges", action="store_true", help="include merge commits in the report")
     parser.add_argument("--format", choices=["markdown", "json"], default="markdown", help="output format")
     parser.add_argument("--output", type=Path, help="write the report to this file instead of stdout")
@@ -54,6 +55,7 @@ def main(argv: list[str] | None = None) -> int:
             since_days=args.since_days,
             author=args.author,
             include_merges=args.include_merges,
+            exclude=tuple(args.exclude),
         )
     except (OSError, ValueError) as exc:
         print(f"gitpulse: {exc}", file=sys.stderr)

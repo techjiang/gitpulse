@@ -27,6 +27,10 @@ class ParserTests(unittest.TestCase):
         self.assertEqual(_parser().parse_args([]).format, "markdown")
         self.assertEqual(_parser().parse_args(["--format", "json"]).format, "json")
 
+    def test_exclude_can_repeat(self):
+        args = _parser().parse_args(["--exclude", "docs/", "--exclude", "tests/"])
+        self.assertEqual(args.exclude, ["docs/", "tests/"])
+
 
 class MainTests(unittest.TestCase):
     def test_rejects_non_positive_top(self):
