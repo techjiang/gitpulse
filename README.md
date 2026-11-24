@@ -8,7 +8,8 @@
 - Shows the most active contributors and their share of total commits.
 - Lists the latest commits with short messages.
 - Ranks the most frequently touched files.
-- Writes to stdout or a Markdown file.
+- Outputs Markdown or machine-readable JSON.
+- Writes to stdout or a file.
 - Requires only Python 3.9+ and Git.
 
 ## Install
@@ -40,6 +41,9 @@ gitpulse . --include-merges
 
 # Show the top 10 most touched files
 gitpulse . --top-files 10
+
+# Emit JSON for scripts
+gitpulse . --format json --output report.json
 ```
 
 Example output:

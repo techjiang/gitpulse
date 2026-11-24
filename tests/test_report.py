@@ -1,7 +1,8 @@
+import json
 import unittest
 
 from gitpulse.collector import Commit, FileStat
-from gitpulse.report import build_markdown
+from gitpulse.report import build_json, build_markdown
 
 
 class ReportTests(unittest.TestCase):
@@ -35,6 +36,15 @@ class ReportTests(unittest.TestCase):
         self.assertIn("## Most touched files", text)
         self.assertIn("| `gitpulse/cli.py` | 4 |", text)
         self.assertNotIn("| `README.md` | 2 |", text)
+
+    def test_json_report(self):
+        stats = [FileStat("README.md", 1)]
+        data = json.loads(build_json(self.commits, "demo", file_stats=stats))
+        self.assertEqual(data["repository"], "demo")
+        self.assertEqual(data["total_commits"], 3)
+        self.assertEqual(data["contributors"][0]["author"], "Alice")
+        self.assertEqual(data["files"][0]["path"], "README.md")
+        self.assertEqual(len(data["commits"]), 3)
 
 
 if __name__ == "__main__":
