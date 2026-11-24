@@ -26,6 +26,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--exclude", action="append", default=[], help="skip paths containing this text in file stats")
     parser.add_argument("--include-merges", action="store_true", help="include merge commits in the report")
     parser.add_argument("--format", choices=["markdown", "json"], default="markdown", help="output format")
+    parser.add_argument("--sort", choices=["commits", "author"], default="commits", help="sort contributors by commits or name")
     parser.add_argument("--output", type=Path, help="write the report to this file instead of stdout")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     return parser
@@ -80,6 +81,7 @@ def main(argv: list[str] | None = None) -> int:
             repo_name(path),
             file_stats=file_stats,
             top_files=args.top_files,
+            sort=args.sort,
         )
     else:
         report = build_markdown(
@@ -90,6 +92,7 @@ def main(argv: list[str] | None = None) -> int:
             top=args.top,
             file_stats=file_stats,
             top_files=args.top_files,
+            sort=args.sort,
         )
 
     if args.output:
