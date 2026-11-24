@@ -31,6 +31,13 @@ class ParserTests(unittest.TestCase):
         args = _parser().parse_args(["--exclude", "docs/", "--exclude", "tests/"])
         self.assertEqual(args.exclude, ["docs/", "tests/"])
 
+    def test_since_date_parsing(self):
+        self.assertIsNone(_parser().parse_args([]).since_date)
+        self.assertEqual(
+            _parser().parse_args(["--since-date", "2026-01-01"]).since_date,
+            "2026-01-01"
+        )
+
 
 class MainTests(unittest.TestCase):
     def test_rejects_non_positive_top(self):
@@ -46,6 +53,13 @@ class MainTests(unittest.TestCase):
             code = main(["--top-files", "0"])
         self.assertEqual(code, 2)
         self.assertIn("--top-files must be positive", stderr.getvalue())
+
+    def test_rejects_invalid_since_date(self):
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            code = main(["--since-date", "01-01-2026"])
+        self.assertEqual(code, 2)
+        self.assertIn("--since-date must be YYYY-MM-DD", stderr.getvalue())
 
     def test_writes_report_to_file(self):
         commit = Commit("a" * 40, "Alice", "a@b.c", 1700000000, "First commit")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+from datetime import date
 from pathlib import Path
 import sys
 
@@ -18,6 +19,7 @@ def _parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("path", nargs="?", default=".", help="repository path (default: .)")
     parser.add_argument("--since-days", type=int, help="only include commits from the last N days")
+    parser.add_argument("--since-date", help="only include commits on or after this date (YYYY-MM-DD)")
     parser.add_argument("--author", help="only include commits by this author (git --author pattern)")
     parser.add_argument("--top", type=int, default=5, help="number of recent commits to list")
     parser.add_argument("--top-files", type=int, default=5, help="number of most touched files to list")
@@ -42,17 +44,25 @@ def main(argv: list[str] | None = None) -> int:
     if args.since_days is not None and args.since_days <= 0:
         print("gitpulse: --since-days must be positive", file=sys.stderr)
         return 2
+    if args.since_date:
+        try:
+            date.fromisoformat(args.since_date)
+        except ValueError:
+            print("gitpulse: --since-date must be YYYY-MM-DD", file=sys.stderr)
+            return 2
 
     try:
         commits = collect_commits(
             path,
             since_days=args.since_days,
+            since=args.since_date,
             author=args.author,
             include_merges=args.include_merges,
         )
         file_stats = collect_file_stats(
             path,
             since_days=args.since_days,
+            since=args.since_date,
             author=args.author,
             include_merges=args.include_merges,
             exclude=tuple(args.exclude),
@@ -76,6 +86,7 @@ def main(argv: list[str] | None = None) -> int:
             commits,
             repo_name(path),
             since_days=args.since_days,
+            since_date=args.since_date,
             top=args.top,
             file_stats=file_stats,
             top_files=args.top_files,

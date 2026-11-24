@@ -4,7 +4,7 @@
 
 ## Features
 
-- Counts commits in a date range and groups them by author.
+- Counts commits by relative days or an absolute start date.
 - Shows the most active contributors and their share of total commits.
 - Lists the latest commits with short messages.
 - Ranks the most frequently touched files, with optional path exclusions.
@@ -47,6 +47,9 @@ gitpulse . --format json --output report.json
 
 # Ignore generated files in the file ranking
 gitpulse . --exclude docs/ --exclude tests/
+
+# Commits since a fixed calendar date
+gitpulse . --since-date 2026-01-01
 ```
 
 Example output:

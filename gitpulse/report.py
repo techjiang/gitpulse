@@ -19,6 +19,7 @@ def build_markdown(
     repository: str,
     *,
     since_days: int | None = None,
+    since_date: str | None = None,
     top: int = 5,
     file_stats: list[FileStat] | None = None,
     top_files: int = 5,
@@ -37,7 +38,9 @@ def build_markdown(
 
     lines.append(f"- Commits: {total}")
     lines.append(f"- Contributors: {len(counts)}")
-    if since_days is not None:
+    if since_date:
+        lines.append(f"- Window: since {since_date}")
+    elif since_days is not None:
         lines.append(f"- Window: last {since_days} days")
     else:
         lines.append(f"- Window: {first_date} to {last_date}")
