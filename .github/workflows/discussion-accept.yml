@@ -1,0 +1,20 @@
+name: Discussion accept
+on:
+  workflow_dispatch:
+    inputs:
+      answer_id:
+        description: 'Answer comment node id'
+        required: true
+permissions:
+  contents: read
+  discussions: write
+jobs:
+  accept:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Accept answer
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ANSWER_ID: ${{ github.event.inputs.answer_id }}
+        run: node .github/scripts/accept-answer.js
