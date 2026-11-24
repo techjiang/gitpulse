@@ -33,6 +33,9 @@ gitpulse . --since-days 30 --output report.md
 
 # Only one contributor, top 10 recent commits
 gitpulse . --author alice --top 10
+
+# Include merge commits (excluded by default)
+gitpulse . --include-merges
 ```
 
 Example output:

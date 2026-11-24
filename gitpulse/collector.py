@@ -57,6 +57,7 @@ def collect_commits(
     since_days: int | None = None,
     author: str | None = None,
     limit: int | None = None,
+    include_merges: bool = False,
 ) -> list[Commit]:
     """Run git log and return parsed commits, newest first."""
     cmd = [
@@ -64,9 +65,10 @@ def collect_commits(
         "-C",
         str(path),
         "log",
-        "--no-merges",
-        f"--pretty=format:%H{FIELD_SEP}%aN{FIELD_SEP}%ae{FIELD_SEP}%at{FIELD_SEP}%s",
     ]
+    if not include_merges:
+        cmd.append("--no-merges")
+    cmd.append(f"--pretty=format:%H{FIELD_SEP}%aN{FIELD_SEP}%ae{FIELD_SEP}%at{FIELD_SEP}%s")
     if since_days is not None:
         if since_days <= 0:
             raise ValueError("since_days must be positive")

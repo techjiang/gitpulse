@@ -20,6 +20,7 @@ def _parser() -> argparse.ArgumentParser:
     parser.add_argument("--since-days", type=int, help="only include commits from the last N days")
     parser.add_argument("--author", help="only include commits by this author (git --author pattern)")
     parser.add_argument("--top", type=int, default=5, help="number of recent commits to list")
+    parser.add_argument("--include-merges", action="store_true", help="include merge commits in the report")
     parser.add_argument("--output", type=Path, help="write the report to this file instead of stdout")
     parser.add_argument("--version", action="version", version=f"%(prog)s {__version__}")
     return parser
@@ -37,7 +38,12 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     try:
-        commits = collect_commits(path, since_days=args.since_days, author=args.author)
+        commits = collect_commits(
+            path,
+            since_days=args.since_days,
+            author=args.author,
+            include_merges=args.include_merges,
+        )
     except (OSError, ValueError) as exc:
         print(f"gitpulse: {exc}", file=sys.stderr)
         return 2
