@@ -14,6 +14,12 @@ def _percentage(count: int, total: int) -> str:
     return f"{count / total * 100:.1f}%"
 
 
+def _sorted_counts(counts: Counter[str], sort: str) -> list[tuple[str, int]]:
+    if sort == "author":
+        return sorted(counts.items(), key=lambda item: item[0].lower())
+    return counts.most_common()
+
+
 def build_markdown(
     commits: list[Commit],
     repository: str,
@@ -23,6 +29,7 @@ def build_markdown(
     top: int = 5,
     file_stats: list[FileStat] | None = None,
     top_files: int = 5,
+    sort: str = "commits",
 ) -> str:
     """Build a Markdown activity report."""
     lines = [f"# Git activity report: {repository}", ""]
@@ -50,7 +57,7 @@ def build_markdown(
     lines.append("")
     lines.append("| Author | Commits | Share |")
     lines.append("| --- | ---: | ---: |")
-    for author, count in counts.most_common():
+    for author, count in _sorted_counts(counts, sort):
         lines.append(f"| {author} | {count} | {_percentage(count, total)} |")
     lines.append("")
 
@@ -79,6 +86,7 @@ def build_json(
     *,
     file_stats: list[FileStat] | None = None,
     top_files: int = 5,
+    sort: str = "commits",
 ) -> str:
     """Build a machine-readable JSON report."""
     counts = Counter(commit.author for commit in commits)
@@ -87,7 +95,7 @@ def build_json(
         "total_commits": len(commits),
         "contributors": [
             {"author": author, "commits": count}
-            for author, count in counts.most_common()
+            for author, count in _sorted_counts(counts, sort)
         ],
         "files": [
             {"path": stat.path, "commits": stat.commits}

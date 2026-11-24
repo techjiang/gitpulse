@@ -38,6 +38,10 @@ class ParserTests(unittest.TestCase):
             "2026-01-01"
         )
 
+    def test_sort_option(self):
+        self.assertEqual(_parser().parse_args([]).sort, "commits")
+        self.assertEqual(_parser().parse_args(["--sort", "author"]).sort, "author")
+
 
 class MainTests(unittest.TestCase):
     def test_rejects_non_positive_top(self):

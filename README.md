@@ -6,6 +6,7 @@
 
 - Counts commits by relative days or an absolute start date.
 - Shows the most active contributors and their share of total commits.
+- Sorts contributors by commit count or name.
 - Lists the latest commits with short messages.
 - Ranks the most frequently touched files, with optional path exclusions.
 - Outputs Markdown or machine-readable JSON.
@@ -50,6 +51,9 @@ gitpulse . --exclude docs/ --exclude tests/
 
 # Commits since a fixed calendar date
 gitpulse . --since-date 2026-01-01
+
+# Sort contributors alphabetically
+gitpulse . --sort author
 ```
 
 Example output:

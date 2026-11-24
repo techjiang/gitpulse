@@ -50,6 +50,15 @@ class ReportTests(unittest.TestCase):
         text = build_markdown(self.commits, "demo", since_date="2026-01-01")
         self.assertIn("- Window: since 2026-01-01", text)
 
+    def test_sort_contributors_by_author(self):
+        commits = [
+            Commit("a" * 40, "Zoe", "z@b.c", 1700000000, "Z"),
+            Commit("b" * 40, "Zoe", "z@b.c", 1700003600, "Z2"),
+            Commit("c" * 40, "Adam", "a@b.c", 1700007200, "A"),
+        ]
+        text = build_markdown(commits, "demo", sort="author")
+        self.assertLess(text.index("| Adam |"), text.index("| Zoe |"))
+
 
 if __name__ == "__main__":
     unittest.main()
